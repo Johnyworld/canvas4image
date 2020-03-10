@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Image Controls</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div id="choiceWrapper" class="row">
+            <label for="banner">프로필</label>
+            <input name="choice" onchange="changeChoice" type="radio" value="profile" checked />
+    
+            <label for="banner">배너</label>
+            <input name="choice" onchange="changeChoice" type="radio" value="banner" />
+        </div>
+
+        <div class="row">
+            <input id="uploadInput" type="file" />
+        </div>
+
+        <div class="wrapper">
+            <p>프로필</p>
+            <canvas width="300" height="300" id="profileCanvas"></canvas>
+    
+            <p>배너</p>
+            <canvas width="500" height="200" id="bannerCanvas"></canvas>
+        </div>
+
+        <div>
+            <p>이미지 엘리먼트로 변환</p>
+            <div id="saveImg"></div>
+        </div>
+
+        <script src="/dist/app.js"></script>
+        <script>
+            function changeChoice() {
+                console.log('ss')
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,22 @@
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.row {
+    margin-bottom: 10px;
+}
+
+.wrapper {
+    padding: 10px 0;
+}
+
+#uploadInput {
+    display: block;
+}
+
+canvas {
+    display: block;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+}
