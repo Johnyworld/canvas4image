@@ -1,6 +1,19 @@
-import { canvas } from '../Canvas'
+import { fitImageToCanvas, addLogo } from "./upload";
+
+let logoElements = [];
 
 let choice = 'profile';
+
+let mousePos = { x: 0, y: 0 }
+
+const canvas = {
+    profileCanvas: document.getElementById('profileCanvas'),
+    profileCtx: profileCanvas.getContext('2d'),
+    bannerCanvas: document.getElementById('bannerCanvas'),
+    bannerCtx: bannerCanvas.getContext('2d'),
+    dragCanvas: document.getElementById('dragCanvas'),
+    dragCtx: dragCanvas.getContext('2d')
+}
 
 const uploadInput = document.getElementById('uploadInput');
 const choiceWrapper = document.getElementById('choiceWrapper');
@@ -11,56 +24,58 @@ const onChangeChoice = (e) => {
     choice = e.target.value;
 }
 
-const downloadImg = (filename, currentCanvas) => {
-    // 이미지를 DOM 엘리먼트로 만들어줍니다.
-    let dataUrl = currentCanvas.toDataURL('image/png');
-    dataUrl = dataUrl.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
-    dataUrl = dataUrl.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
-
-    // 이미지 다운로드
-    let aTag = document.createElement('a');
-    aTag.download = `${filename}.png`;
-    aTag.href = dataUrl;
-    aTag.click();
-}
-
-const imgToElement = (element, currentCanvas) => {
-    const dataUrl = currentCanvas.toDataURL('image/png');
-    const img = `<img src="${dataUrl}" />`
-    element.innerHTML = img;
+const handleAddLogoElements = (object) => {
+    logoElements = [...logoElements, object];
 }
 
 const uploading = (e) => {
     if ( choice ) {
-        const reader = new FileReader();
-        reader.onload = event => {
-            const img = new Image();
-            img.onload = () => {
-                const currentCanvas = canvas[`${choice}Canvas`];
-
-                // 캔버스와 이미지 크기를 비교하여 배율을 구합니다. (가로, 세로중 더 큰 값을 받습니다.)
-                const scale = Math.max(currentCanvas.width / img.width, currentCanvas.height / img.height);
-
-                // 캔버스 내에서 그림을 그릴 위치를 잡습니다. 
-                const x = (currentCanvas.width / 2) - (img.width / 2) * scale;
-                const y = (currentCanvas.height / 2) - (img.height / 2) * scale;
-
-                // 이미지를 늘리거나 줄여준 채로 그려줍니다.
-                canvas[`${choice}Ctx`].drawImage(img, x, y, img.width * scale, img.height * scale);
-
-                // 캔버스 이미지를 클릭하면 파일 다운로드
-                const filename = choice;
-                currentCanvas.addEventListener('click', () => downloadImg(filename, currentCanvas));
-                currentCanvas.style.cursor = 'pointer';
-
-                // 이미지 엘리먼트 생성
-                const saveImg = document.getElementById('saveImg');
-                imgToElement(saveImg, currentCanvas);
-            }
-            img.src = event.target.result;
+        if ( choice === 'logo' ) {
+            addLogo(canvas.dragCanvas, canvas.dragCtx, handleAddLogoElements, e);
+        } else {
+            fitImageToCanvas(canvas, choice, e);
         }
-        reader.readAsDataURL(e.target.files[0]);
     }
+}
+
+const getMousePos = (canvas, e) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    }
+}
+
+const mouseMove = (canvas) => (e) => {
+    mousePos = getMousePos(canvas, e);
+}
+
+const handleDragging = () => {
+    const topLayer = logoElements.slice().reverse().find(element=> {
+        element.update( mousePos );
+
+        const edgeTop = element.pos.y
+        const edgeBottom = element.pos.y + element.height;
+        const edgeLeft = element.pos.x
+        const edgeRight = element.pos.x + element.width;
+
+        const isMouseInObjectX = mousePos.x > edgeLeft && mousePos.x < edgeRight;
+        const isMouseInObjectY = mousePos.y > edgeTop && mousePos.y < edgeBottom;
+
+        return isMouseInObjectX && isMouseInObjectY;
+    });
+
+    topLayer.dragging = true;
+    topLayer.offset.x = mousePos.x - topLayer.pos.x;
+    topLayer.offset.y = mousePos.y - topLayer.pos.y;
+}
+
+const handleDraggingOff = () => {
+    logoElements.forEach(element=> {
+        element.dragging = false;
+        element.offset.x = 0;
+        element.offset.y = 0;
+    })
 }
 
 const define = () => {
@@ -68,6 +83,20 @@ const define = () => {
     inputs.forEach(input=> {
         input.addEventListener('change', onChangeChoice);
     })
+    canvas.dragCanvas.addEventListener('mousemove', mouseMove(canvas.dragCanvas))
+    canvas.dragCanvas.addEventListener('mousedown', handleDragging);
+    canvas.dragCanvas.addEventListener('mouseup', handleDraggingOff);
 }
+
+const run = () => {
+    canvas.dragCtx.clearRect(0, 0, canvas.dragCanvas.width, canvas.dragCanvas.height);
+    requestAnimationFrame(() => run(canvas, logoElements));
+    logoElements.forEach(element=> {
+        element.update( mousePos );
+    });
+    canvas.dragCtx.beginPath();
+}
+
+run();
 
 export default { define }

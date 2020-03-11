@@ -5,16 +5,21 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <div id="choiceWrapper" class="row">
-            <label for="banner">프로필</label>
-            <input name="choice" onchange="changeChoice" type="radio" value="profile" checked />
-    
-            <label for="banner">배너</label>
-            <input name="choice" onchange="changeChoice" type="radio" value="banner" />
-        </div>
+        <div class="wrapper">
+            <div id="choiceWrapper" class="row">
+                <label for="banner">프로필</label>
+                <input name="choice" onchange="changeChoice" type="radio" value="profile" checked />
+        
+                <label for="banner">배너</label>
+                <input name="choice" onchange="changeChoice" type="radio" value="banner" />
 
-        <div class="row">
-            <input id="uploadInput" type="file" />
+                <label for="banner">로고들</label>
+                <input name="choice" onchange="changeChoice" type="radio" value="logo" />
+            </div>
+    
+            <div class="row">
+                <input id="uploadInput" type="file" />
+            </div>
         </div>
 
         <div class="wrapper">
@@ -23,10 +28,13 @@
     
             <p>배너</p>
             <canvas width="500" height="200" id="bannerCanvas"></canvas>
+
+            <p>드래그</p>
+            <canvas width="500" height="500" id="dragCanvas"></canvas>
         </div>
 
-        <div>
-            <p>이미지 엘리먼트로 변환</p>
+        <div class="wrapper top-right">
+            <p>이미지 엘리먼트</p>
             <div id="saveImg"></div>
         </div>
 
