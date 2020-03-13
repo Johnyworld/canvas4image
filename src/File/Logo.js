@@ -8,6 +8,8 @@ export default class Logo {
         this.width = Image.width;
         this.height = Image.height;
 
+        this.scale = 1;
+
         this.dragging = false;
 
         this.offset = { x: 0, y: 0 }
@@ -20,7 +22,7 @@ export default class Logo {
             0, 0,
             this.width, this.height,
             this.pos.x, this.pos.y,
-            this.width, this.height
+            this.width * this.scale, this.height * this.scale
         )
     }
 
